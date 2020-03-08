@@ -17,8 +17,17 @@ Add the following maven url in the build.gradle of the project inside "repositor
         google()
         jcenter()
         maven {
-            url  "https://dl.bintray.com/camoal/maven"
+            url "https://dl.bintray.com/camoal/maven"
         }
+    }
+```
+
+Add the following dependency to the application gradle.
+
+```sh
+    dependencies {
+        ...
+        implementation 'com.camoal.jwe:jwe:1.0.0'
     }
 ```
 
