@@ -66,7 +66,7 @@ abstract class Jwe {
             ).decode()
         }
 
-        fun parse(): JweDecoded {
+        fun parse(): String {
             return JweDecoder(
                 privateKey,
                 jwe

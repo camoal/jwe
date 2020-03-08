@@ -11,7 +11,7 @@ internal class JweDecoder(
     private val jwe: String
 ): JweHelper {
 
-    fun decode(): JweDecoded {
+    fun decode(): String {
 
         val list = jwe.parse()
 
@@ -42,6 +42,6 @@ internal class JweDecoder(
         val symmetricCipher = getSymmetricCipher(cek, Cipher.DECRYPT_MODE, iv)
         val decipherText = computeCipher(symmetricCipher, cipherInput, add)
 
-        return JweDecoded(String(header.fromBase64()), String(decipherText))
+        return String(decipherText)
     }
 }
