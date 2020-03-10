@@ -1,8 +1,6 @@
 package com.camoal.jwe
 
-import android.util.Base64
 import java.security.Key
-import java.security.MessageDigest
 import java.security.spec.MGF1ParameterSpec
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
@@ -11,7 +9,7 @@ import javax.crypto.spec.PSource
 import javax.crypto.spec.SecretKeySpec
 
 
-internal interface JweHelper {
+internal open class JweHelper {
 
     fun getSymmetricCipher(key: ByteArray, cipherMode: Int, iv: ByteArray): Cipher {
         val secretKeySpec = SecretKeySpec(key, "AES")
@@ -50,26 +48,11 @@ internal interface JweHelper {
         return cipher.doFinal(data)
     }
 
-    fun ByteArray.toSha256(): ByteArray {
-        val messageDigest = MessageDigest.getInstance("SHA-256")
-        return messageDigest.digest(this)
-    }
-
-    fun ByteArray.toBase64(): String {
-        return Base64.encodeToString(this,
-            Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
-    }
-
-    fun String.fromBase64(): ByteArray {
-        return Base64.decode(this,
-            Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
-    }
-
-    fun String.parse(): List<String> {
-        val list = this.split(".")
-        if(list.size != 5) {
+    fun getCompactSerialization(jwe: String): List<String> {
+        val compactSerialization = jwe.split(".")
+        if(compactSerialization.size != 5) {
             throw IllegalArgumentException()
         }
-        return list
+        return compactSerialization
     }
 }

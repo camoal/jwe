@@ -1,6 +1,10 @@
 package com.camoal.jwe
 
-import org.json.JSONObject
+import com.camoal.jwe.JweSerialization.AUTHENTICATION_TAG
+import com.camoal.jwe.JweSerialization.CIPHER_TEXT
+import com.camoal.jwe.JweSerialization.ENCRYPTED_KEY
+import com.camoal.jwe.JweSerialization.HEADER
+import com.camoal.jwe.JweSerialization.IV
 import java.security.NoSuchAlgorithmException
 import java.security.PrivateKey
 import javax.crypto.Cipher
@@ -9,30 +13,29 @@ import javax.crypto.Cipher
 internal class JweDecoder(
     private val privateKey: PrivateKey,
     private val jwe: String
-): JweHelper {
+): JweHelper() {
 
     fun decode(): String {
 
-        val list = jwe.parse()
+        val headerParameters = JweHeader(jwe).decode()
 
-        val header = list[0]
-        val plainHeader = String(header.fromBase64())
-        val jsonObject = JSONObject(plainHeader)
-
-        val algorithm = when(jsonObject.getString("alg")) {
+        val algorithm = when(headerParameters[HeaderParameter.ALG]) {
             Algorithm.RSA_OAEP.value -> Algorithm.RSA_OAEP
             Algorithm.RSA_OAEP_256.value -> Algorithm.RSA_OAEP_256
             else -> throw NoSuchAlgorithmException()
         }
 
-        if(jsonObject.getString("enc") != EncryptionAlgorithm.A256GCM.value) {
+        if(headerParameters[HeaderParameter.ENC] != EncryptionAlgorithm.A256GCM.value) {
             throw NoSuchAlgorithmException()
         }
 
-        val encryptedKey = list[1].fromBase64()
-        val iv = list[2].fromBase64()
-        val cipherText = list[3].fromBase64()
-        val authTag = list[4].fromBase64()
+        val compactSerialization = getCompactSerialization(jwe)
+        val header = compactSerialization[HEADER]
+
+        val encryptedKey = compactSerialization[ENCRYPTED_KEY].fromBase64()
+        val iv = compactSerialization[IV].fromBase64()
+        val cipherText = compactSerialization[CIPHER_TEXT].fromBase64()
+        val authTag = compactSerialization[AUTHENTICATION_TAG].fromBase64()
 
         val add = header.toByteArray()
         val asymetricCipher = getAsymetricCipher(privateKey, Cipher.DECRYPT_MODE, algorithm)

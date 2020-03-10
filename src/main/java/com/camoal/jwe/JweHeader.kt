@@ -1,15 +1,16 @@
 package com.camoal.jwe
 
+import com.camoal.jwe.JweSerialization.HEADER
 import org.json.JSONObject
 
 
-class JweHeader(
+internal class JweHeader(
     private val jwe: String
-): JweHelper {
+): JweHelper() {
 
     fun decode(): MutableMap<String, Any> {
 
-        val header = String(jwe.parse()[0].trim().fromBase64())
+        val header = String(getCompactSerialization(jwe)[HEADER].fromBase64())
 
         val map: MutableMap<String, Any> = HashMap()
 

@@ -13,20 +13,21 @@ internal class JweEncoder(
     private val payload: String,
     private val headerParameter: Map<String, Any>,
     private val algorithm: Algorithm
-): JweHelper {
+): JweHelper() {
 
     private fun getHeader(): ByteArray {
 
-        val json = JSONObject()
-        json.put("alg", algorithm.value)
-        json.put("enc", EncryptionAlgorithm.A256GCM.value)
+        val header = JSONObject()
+        header.put(HeaderParameter.ALG, algorithm.value)
+        header.put(HeaderParameter.ENC, EncryptionAlgorithm.A256GCM.value)
+        header.put(HeaderParameter.TYP, HeaderParameter.JOSE_TYP)
         certificate?.let { certificate ->
-            json.put("x5t#S256", certificate.encoded.toSha256().toBase64())
+            header.put(HeaderParameter.X5TS256, certificate.encoded.toSha256().toBase64())
         }
         headerParameter.forEach {
-            json.put(it.key, it.value)
+            header.put(it.key, it.value)
         }
-        return json.toString().toByteArray()
+        return header.toString().toByteArray()
     }
 
     private fun generateRandomBytes(size: Int): ByteArray {
